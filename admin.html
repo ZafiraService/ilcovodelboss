@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Il Covo Del Boss</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e63030;
+    --red-dark: #b01f1f;
+    --red-glow: rgba(230,48,48,0.3);
+    --bg: #0a0808;
+    --bg2: #110d0d;
+    --card: #171010;
+    --card2: #1e1414;
+    --border: rgba(230,48,48,0.15);
+    --border2: rgba(255,255,255,0.06);
+    --text: #f0e8e8;
+    --muted: #8a7a7a;
+    --white: #fff;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --gold: #f1c40f;
+    --info: #3498db;
+    --sidebar: 240px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* ═══ SIDEBAR ═══ */
+  .sidebar {
+    width: var(--sidebar);
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    transition: transform 0.3s;
+  }
+
+  .sidebar-logo {
+    padding: 1.4rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .sidebar-logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 12px var(--red-glow);
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 1px; line-height: 1.1; }
+  .sidebar-logo-sub { font-size: 0.68rem; color: var(--red); text-transform: uppercase; letter-spacing: 1px; }
+
+  .sidebar-user {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .sidebar-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 2px solid var(--border);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--card2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    overflow: hidden;
+  }
+
+  .sidebar-user-info { min-width: 0; }
+  .sidebar-user-name { font-weight: 600; font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user-role { font-size: 0.72rem; color: var(--red); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .sidebar-nav { flex: 1; padding: 1rem 0.7rem; overflow-y: auto; }
+
+  .sidebar-section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    padding: 0 0.6rem;
+    margin: 1rem 0 0.4rem;
+  }
+
+  .sidebar-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 9px;
+    color: var(--muted);
+    font-size: 0.86rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: none; background: transparent; width: 100%; text-align: left;
+    position: relative;
+  }
+
+  .sidebar-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .sidebar-link.active { color: var(--white); background: rgba(230,48,48,0.12); }
+  .sidebar-link.active::before {
+    content: '';
+    position: absolute; left: 0; top: 20%; bottom: 20%;
+    width: 3px; border-radius: 2px;
+    background: var(--red);
+  }
+
+  .sidebar-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 100px;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .sidebar-badge.warn { background: var(--warning); color: #000; }
+  .sidebar-badge.info { background: var(--info); }
+  .sidebar-badge.success { background: var(--success); color: #000; }
+
+  .sidebar-footer {
+    padding: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ═══ MAIN CONTENT ═══ */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  /* Top bar */
+  .topbar {
+    height: 58px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    position: sticky; top: 0; z-index: 50;
+  }
+
+  .topbar-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 1px; }
+  .topbar-sub { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+  /* ═══ PAGES ═══ */
+  .admin-page { display: none; padding: 2rem; flex: 1; }
+  .admin-page.active { display: block; }
+
+  /* ═══ ACCESS GATE ═══ */
+  #gate {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+    padding: 2rem;
+    position: fixed; inset: 0; z-index: 999;
+  }
+
+  .gate-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  }
+
+  .gate-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--red), var(--red-dark));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 0 30px var(--red-glow);
+  }
+
+  .gate-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 1px; margin-bottom: 0.4rem; }
+  .gate-sub { color: var(--muted); font-size: 0.87rem; margin-bottom: 1.5rem; line-height: 1.5; }
+
+  .roles-list-preview {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    margin-bottom: 1.5rem; text-align: left;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .role-preview-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.83rem;
+  }
+
+  .role-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+
+  /* ═══ STAT CARDS ═══ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .stat-card-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .stat-card-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .stat-card-trend {
+    font-size: 0.75rem; margin-top: 6px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* ═══ TABLE ═══ */
+  .admin-table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 1.2rem;
+  }
+
+  .admin-table-header {
+    padding: 1rem 1.4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-table-header-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+
+  .admin-table { width: 100%; border-collapse: collapse; }
+
+  .admin-table th {
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .admin-table td {
+    padding: 14px 16px;
+    font-size: 0.87rem;
+    border-bottom: 1px solid var(--border2);
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td { border-bottom: none; }
+  .admin-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+  /* ═══ STATUS PILLS ═══ */
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+
+  .pill-pending { background: rgba(243,156,18,0.15); color: var(--warning); }
+  .pill-accepted { background: rgba(46,204,113,0.12); color: var(--success); }
+  .pill-rejected { background: rgba(231,76,60,0.12); color: var(--danger); }
+  .pill-ban { background: rgba(231,76,60,0.12); color: var(--danger); }
+  .pill-active { background: rgba(52,152,219,0.12); color: var(--info); }
+
+  /* ═══ BUTTONS ═══ */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 0.84rem; font-weight: 600;
+    cursor: pointer; border: none;
+    font-family: 'Outfit', sans-serif;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-sm { padding: 5px 12px; font-size: 0.78rem; }
+
+  .btn-red { background: var(--red); color: white; }
+  .btn-red:hover { background: var(--red-dark); }
+
+  .btn-success { background: rgba(46,204,113,0.15); color: var(--success); border: 1px solid rgba(46,204,113,0.3); }
+  .btn-success:hover { background: rgba(46,204,113,0.25); }
+
+  .btn-danger { background: rgba(231,76,60,0.12); color: var(--danger); border: 1px solid rgba(231,76,60,0.3); }
+  .btn-danger:hover { background: rgba(231,76,60,0.25); }
+
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+  .btn-discord { background: #5865F2; color: white; box-shadow: 0 4px 16px rgba(88,101,242,0.35); }
+  .btn-discord:hover { background: #4752c4; }
+
+  .btn-ghost { background: transparent; color: var(--muted); border: none; }
+  .btn-ghost:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+  /* ═══ MODAL ═══ */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+    z-index: 5000; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: 18px; padding: 2rem;
+    max-width: 500px; width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+    animation: popIn 0.2s ease;
+  }
+
+  @keyframes popIn { from { opacity:0; transform: scale(0.95); } to { opacity:1; transform: scale(1); } }
+
+  .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 1px; margin-bottom: 0.3rem; }
+  .modal-sub { font-size: 0.84rem; color: var(--muted); margin-bottom: 1.4rem; }
+
+  .modal-user-preview {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 1.2rem;
+  }
+
+  .modal-user-preview img { width: 40px; height: 40px; border-radius: 50%; }
+
+  .detail-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid var(--border2);
+    gap: 1rem;
+  }
+
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { font-size: 0.78rem; color: var(--muted); flex-shrink: 0; }
+  .detail-val { font-size: 0.85rem; text-align: right; }
+
+  .modal-btns { display: flex; gap: 10px; margin-top: 1.4rem; flex-wrap: wrap; }
+
+  /* ═══ FORM ═══ */
+  .form-group { margin-bottom: 1rem; }
+  .form-label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 5px; }
+  .form-label span { color: var(--red); }
+  .form-input, .form-textarea, .form-select {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 13px; color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: 0.88rem; outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: rgba(230,48,48,0.5); }
+  .form-textarea { min-height: 100px; resize: vertical; }
+
+  /* ═══ SEARCH ═══ */
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 7px 12px;
+  }
+  .search-box input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: 'Outfit', sans-serif;
+    font-size: 0.86rem; width: 180px;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  /* ═══ TABS ═══ */
+  .tabs { display: flex; gap: 4px; background: var(--card2); border-radius: 10px; padding: 4px; margin-bottom: 1.4rem; width: fit-content; }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 7px; border: none; background: transparent;
+    font-family: 'Outfit', sans-serif; font-size: 0.84rem; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--card); color: var(--text); }
+
+  /* ═══ ALERT BANNER ═══ */
+  .alert {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; border-radius: 10px; margin-bottom: 1.2rem;
+    font-size: 0.85rem;
+  }
+  .alert-warning { background: rgba(243,156,18,0.1); border: 1px solid rgba(243,156,18,0.3); color: #f8c56d; }
+  .alert-info { background: rgba(52,152,219,0.1); border: 1px solid rgba(52,152,219,0.3); color: #5dade2; }
+  .alert-success { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: #58d68d; }
+  .alert-danger { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.3); color: #ec7063; }
+
+  /* ═══ ROLE TAG ═══ */
+  .role-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 6px;
+    font-size: 0.74rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .role-founder { background: rgba(241,196,15,0.15); color: var(--gold); }
+  .role-cofounder { background: rgba(241,196,15,0.1); color: #e0b70a; }
+  .role-manager { background: rgba(230,48,48,0.15); color: var(--red); }
+  .role-admin { background: rgba(231,76,60,0.15); color: var(--danger); }
+  .role-supervisor { background: rgba(52,152,219,0.15); color: var(--info); }
+  .role-coordinator { background: rgba(46,204,113,0.12); color: var(--success); }
+
+  /* ═══ AVATAR STACK ═══ */
+  .avatar-user { display: flex; align-items: center; gap: 10px; }
+  .avatar-user img { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); }
+  .avatar-user .username { font-weight: 500; font-size: 0.88rem; }
+  .avatar-user .userid { font-size: 0.74rem; color: var(--muted); }
+
+  /* ═══ SECTION HEADER ═══ */
+  .section-header { margin-bottom: 1.4rem; }
+  .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 1px; margin-bottom: 2px; }
+  .section-sub { font-size: 0.84rem; color: var(--muted); }
+
+  /* ═══ EMPTY STATE ═══ */
+  .empty-state { text-align: center; padding: 3rem 2rem; }
+  .empty-state .ei { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .empty-state h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+  .empty-state p { font-size: 0.83rem; color: var(--muted); }
+
+  /* ═══ ACTIVITY LOG ═══ */
+  .log-list { display: flex; flex-direction: column; gap: 0; }
+  .log-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border2);
+    font-size: 0.84rem;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .log-time { font-size: 0.74rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
+
+  /* ═══ LOADING ═══ */
+  .spinner {
+    width: 32px; height: 32px; border: 3px solid var(--border);
+    border-top-color: var(--red); border-radius: 50%;
+    animation: spin 0.7s linear infinite; margin: 2rem auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ═══ TOAST ═══ */
+  #toast-container {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--card2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 0.85rem; display: flex; align-items: center; gap: 8px;
+    min-width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    animation: slideInR 0.25s ease;
+  }
+  @keyframes slideInR { from { opacity:0; transform: translateX(16px); } to { opacity:1; transform: translateX(0); } }
+  .toast.success { border-color: rgba(46,204,113,0.3); }
+  .toast.error { border-color: rgba(231,76,60,0.3); }
+  .toast.warn { border-color: rgba(243,156,18,0.3); }
+
+  /* ═══ RESPONSIVE ═══ */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--card2); border-radius: 3px; }
+
+  /* Noise */
+  body::after {
+    content:''; position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:9998; opacity:0.35;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     ACCESS GATE — Discord Login + Role Check
+══════════════════════════════════════════════════════ -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-icon" id="gateIcon">🛡️</div>
+    <div class="gate-title" id="gateTitle">Pannello Admin</div>
+    <div class="gate-sub" id="gateSub">Accedi con Discord per continuare.<br>Solo lo staff autorizzato ha accesso.</div>
+
+    <div class="roles-list-preview" id="gateRolesList">
+      <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Ruoli con accesso</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:#f1c40f;"></div> 👑 Founder</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:#e0b70a;"></div> 🌟 Co Founder</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:var(--red);"></div> 🔴 Manager</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:var(--danger);"></div> 🛡️ Admin</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:var(--info);"></div> 🔵 Supervisor</div>
+      <div class="role-preview-item"><div class="role-dot" style="background:var(--success);"></div> 🟢 Coordinator</div>
+    </div>
+
+    <div id="gateLoading" style="display:none;"><div class="spinner"></div><div style="text-align:center;font-size:0.84rem;color:var(--muted);">Verifica ruoli in corso...</div></div>
+
+    <div id="gateAccessDenied" style="display:none;">
+      <div class="alert alert-danger" style="margin-bottom:1rem;">
+        <span>🚫</span>
+        <div>Non hai i permessi necessari per accedere al pannello admin. Devi avere almeno il ruolo <strong>Coordinator</strong> nel server.</div>
+      </div>
+    </div>
+
+    <div id="gateBtns">
+      <button class="btn btn-discord" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="initiateDiscordLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        Accedi con Discord
+      </button>
+      <a href="index.html" class="btn btn-outline" style="width:100%;justify-content:center;">← Torna al Sito</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ADMIN LAYOUT (hidden until authorized)
+══════════════════════════════════════════════════════ -->
+<div id="adminLayout" style="display:none;width:100%;display:none;flex:1;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">👑</div>
+      <div>
+        <div class="sidebar-logo-text">Il Covo Del Boss</div>
+        <div class="sidebar-logo-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sbAvatar">👤</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sbName">—</div>
+        <div class="sidebar-user-role" id="sbRole">—</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Generale</div>
+      <button class="sidebar-link active" onclick="showPage('dashboard')">
+        <span>📊</span> Dashboard
+      </button>
+
+      <div class="sidebar-section-label">Richieste</div>
+      <button class="sidebar-link" onclick="showPage('unban')">
+        <span>🔨</span> Unban
+        <span class="sidebar-badge" id="badge-unban">0</span>
+      </button>
+      <button class="sidebar-link" onclick="showPage('candidature')">
+        <span>📋</span> Candidature
+        <span class="sidebar-badge" id="badge-cand">0</span>
+      </button>
+      <button class="sidebar-link" onclick="showPage('ruoli')">
+        <span>🎭</span> Ruoli Custom
+        <span class="sidebar-badge info" id="badge-ruoli">0</span>
+      </button>
+
+      <div class="sidebar-section-label">Community</div>
+      <button class="sidebar-link" onclick="showPage('members')">
+        <span>👥</span> Membri
+      </button>
+      <button class="sidebar-link" onclick="showPage('staff')">
+        <span>🛡️</span> Staff
+      </button>
+      <button class="sidebar-link" onclick="showPage('livelli')">
+        <span>📈</span> Livelli XP
+      </button>
+
+      <div class="sidebar-section-label">Gestione</div>
+      <button class="sidebar-link" onclick="showPage('logs')">
+        <span>📜</span> Log Attività
+      </button>
+      <button class="sidebar-link" onclick="showPage('impostazioni')">
+        <span>⚙️</span> Impostazioni
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.82rem;" onclick="logout()">
+        🚪 Disconnetti
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+        <div class="topbar-sub" id="topbarSub">Benvenuto nel pannello admin</div>
+      </div>
+      <div class="topbar-right">
+        <a href="index.html" class="btn btn-outline btn-sm">← Sito Pubblico</a>
+        <button class="btn btn-ghost btn-sm" onclick="refreshData()">🔄 Aggiorna</button>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: DASHBOARD ════ -->
+    <div class="admin-page active" id="page-dashboard">
+      <div class="stats-grid" id="dashStats">
+        <div class="stat-card">
+          <div>
+            <div class="stat-card-val" id="ds-unban">0</div>
+            <div class="stat-card-label">Unban in Attesa</div>
+            <div class="stat-card-trend" style="color:var(--warning);">⏳ Da gestire</div>
+          </div>
+          <div class="stat-card-icon" style="background:rgba(243,156,18,0.12);">🔨</div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-card-val" id="ds-cand">0</div>
+            <div class="stat-card-label">Candidature</div>
+            <div class="stat-card-trend" style="color:var(--info);">📋 In revisione</div>
+          </div>
+          <div class="stat-card-icon" style="background:rgba(52,152,219,0.12);">📋</div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-card-val" id="ds-staff">0</div>
+            <div class="stat-card-label">Staff Totali</div>
+            <div class="stat-card-trend" style="color:var(--success);">✅ Attivi</div>
+          </div>
+          <div class="stat-card-icon" style="background:rgba(46,204,113,0.12);">🛡️</div>
+        </div>
+        <div class="stat-card">
+          <div>
+            <div class="stat-card-val" id="ds-members">0</div>
+            <div class="stat-card-label">Membri Server</div>
+            <div class="stat-card-trend" style="color:var(--muted);">👥 Totali</div>
+          </div>
+          <div class="stat-card-icon" style="background:rgba(255,255,255,0.06);">👥</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" class="dash-grid">
+        <!-- Pending unban -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-header-title">🔨 Ultimi Unban</div>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('unban')">Vedi tutti →</button>
+          </div>
+          <div id="dashUnbanList">
+            <div class="empty-state" style="padding:1.5rem;">
+              <div class="ei">🎉</div>
+              <h3>Nessuna richiesta</h3>
+              <p>Non ci sono unban in attesa</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending candidature -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-header">
+            <div class="admin-table-header-title">📋 Ultime Candidature</div>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('candidature')">Vedi tutte →</button>
+          </div>
+          <div id="dashCandList">
+            <div class="empty-state" style="padding:1.5rem;">
+              <div class="ei">📭</div>
+              <h3>Nessuna candidatura</h3>
+              <p>Non ci sono candidature in attesa</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity log preview -->
+      <div class="admin-table-wrap" style="margin-top:16px;">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">📜 Attività Recente</div>
+          <button class="btn btn-ghost btn-sm" onclick="showPage('logs')">Log completo →</button>
+        </div>
+        <div style="padding:0 1rem;" id="dashLogList">
+          <div class="empty-state"><div class="ei">🕐</div><h3>Nessuna attività</h3><p>Le azioni dello staff appariranno qui</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: UNBAN ════ -->
+    <div class="admin-page" id="page-unban">
+      <div class="section-header">
+        <div class="section-title">Richieste Unban</div>
+        <div class="section-sub">Gestisci le richieste di unban inviate dagli utenti.</div>
+      </div>
+
+      <div class="tabs" id="unbanTabs">
+        <button class="tab-btn active" onclick="filterUnban('pending')">⏳ In attesa <span id="tab-pending-count"></span></button>
+        <button class="tab-btn" onclick="filterUnban('accepted')">✅ Accettate</button>
+        <button class="tab-btn" onclick="filterUnban('rejected')">❌ Rifiutate</button>
+        <button class="tab-btn" onclick="filterUnban('all')">📋 Tutte</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">🔨 Richieste Unban</div>
+          <div class="search-box">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="Cerca utente..." oninput="searchUnban(this.value)" />
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Utente</th>
+              <th>Motivo Ban</th>
+              <th>Inviata</th>
+              <th>Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="unbanTableBody">
+            <tr><td colspan="5"><div class="empty-state"><div class="ei">🔨</div><h3>Nessuna richiesta</h3><p>Le richieste di unban appariranno qui</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: CANDIDATURE ════ -->
+    <div class="admin-page" id="page-candidature">
+      <div class="section-header">
+        <div class="section-title">Candidature Staff</div>
+        <div class="section-sub">Esamina e gestisci le candidature per il team staff.</div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="filterCand('pending')">⏳ In attesa</button>
+        <button class="tab-btn" onclick="filterCand('accepted')">✅ Accettate</button>
+        <button class="tab-btn" onclick="filterCand('rejected')">❌ Rifiutate</button>
+        <button class="tab-btn" onclick="filterCand('all')">📋 Tutte</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">📋 Candidature</div>
+          <div class="search-box">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="Cerca candidato..." oninput="searchCand(this.value)" />
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Candidato</th>
+              <th>Età</th>
+              <th>Ore/giorno</th>
+              <th>Inviata</th>
+              <th>Stato</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="candTableBody">
+            <tr><td colspan="6"><div class="empty-state"><div class="ei">📋</div><h3>Nessuna candidatura</h3><p>Le candidature inviate dal sito appariranno qui</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: RUOLI ════ -->
+    <div class="admin-page" id="page-ruoli">
+      <div class="section-header">
+        <div class="section-title">Ruoli Custom</div>
+        <div class="section-sub">Gestisci le richieste di ruoli custom e aggiungi nuovi ruoli al server.</div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:1.4rem;flex-wrap:wrap;">
+        <button class="btn btn-red" onclick="openModal('addRoleModal')">+ Aggiungi Ruolo</button>
+        <button class="btn btn-outline" onclick="filterRoles('pending')">⏳ Richieste in attesa</button>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">🎭 Ruoli Custom</div>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Ruolo</th>
+              <th>Proprietario</th>
+              <th>Membri</th>
+              <th>Richieste Attive</th>
+              <th>Azioni</th>
+            </tr>
+          </thead>
+          <tbody id="ruoliTableBody">
+            <tr><td colspan="5"><div class="empty-state"><div class="ei">🎭</div><h3>Nessun ruolo custom</h3><p>Aggiungi il primo ruolo custom tramite il bottone sopra</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: MEMBERS ════ -->
+    <div class="admin-page" id="page-members">
+      <div class="section-header">
+        <div class="section-title">Membri del Server</div>
+        <div class="section-sub">Visualizza tutti i membri registrati. I dati vengono sincronizzati con Discord.</div>
+      </div>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>I dati dei membri vengono sincronizzati dal bot Python. Qui trovi tutti i membri che hanno interagito con il bot nel server.</div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">👥 Membri (<span id="membersCount">0</span>)</div>
+          <div class="search-box">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input placeholder="Cerca membro..." />
+          </div>
+        </div>
+        <div id="membersTableWrap">
+          <div class="empty-state"><div class="ei">👥</div><h3>Nessun membro</h3><p>I dati si popolano tramite il bot Python</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: STAFF ════ -->
+    <div class="admin-page" id="page-staff">
+      <div class="section-header">
+        <div class="section-title">Gestione Staff</div>
+        <div class="section-sub">Visualizza e gestisci i membri dello staff del server.</div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">🛡️ Staff Attivo (<span id="staffTableCount">0</span>)</div>
+        </div>
+        <table class="admin-table" id="staffTable">
+          <thead>
+            <tr>
+              <th>Membro</th>
+              <th>Ruolo Staff</th>
+              <th>Accesso Admin</th>
+              <th>Unban Gestiti</th>
+              <th>Candidature Rev.</th>
+            </tr>
+          </thead>
+          <tbody id="staffTableBody">
+            <tr><td colspan="5"><div class="empty-state"><div class="ei">🛡️</div><h3>Nessuno staff</h3><p>Lo staff appare qui dopo il login con Discord</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: LIVELLI XP ════ -->
+    <div class="admin-page" id="page-livelli">
+      <div class="section-header">
+        <div class="section-title">Livelli XP</div>
+        <div class="section-sub">Gestisci i livelli XP dei membri. Modifica manualmente se necessario.</div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">📈 Classifica XP</div>
+          <button class="btn btn-outline btn-sm" onclick="openModal('xpModal')">✏️ Modifica XP manuale</button>
+        </div>
+        <div class="empty-state" style="padding:2.5rem;">
+          <div class="ei">📈</div>
+          <h3>Nessun dato XP</h3>
+          <p>I dati XP vengono forniti dal bot Python. Una volta che i membri inizieranno a essere attivi, appariranno qui.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: LOGS ════ -->
+    <div class="admin-page" id="page-logs">
+      <div class="section-header">
+        <div class="section-title">Log Attività Staff</div>
+        <div class="section-sub">Registro completo delle azioni eseguite dallo staff nel pannello admin.</div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <div class="admin-table-header-title">📜 Log Completo</div>
+          <button class="btn btn-outline btn-sm" onclick="clearLogs()">🗑️ Svuota log</button>
+        </div>
+        <div style="padding:0 1rem 1rem;" id="fullLogList">
+          <div class="empty-state"><div class="ei">📜</div><h3>Nessuna attività</h3><p>Le azioni dello staff appariranno qui in tempo reale</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ PAGE: IMPOSTAZIONI ════ -->
+    <div class="admin-page" id="page-impostazioni">
+      <div class="section-header">
+        <div class="section-title">Impostazioni</div>
+        <div class="section-sub">Configura il pannello admin e le integrazioni.</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px;">
+        <div class="admin-table-wrap" style="margin-top:0;">
+          <div class="admin-table-header"><div class="admin-table-header-title">⚙️ Discord Bot</div></div>
+          <div style="padding:1.2rem;">
+            <div class="form-group">
+              <label class="form-label">Server ID (Guild ID) <span>*</span></label>
+              <input class="form-input" id="guildId" placeholder="Es: 1234567890123456" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bot Token</label>
+              <input class="form-input" type="password" id="botToken" placeholder="Bot token (nascosto)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Canale Log Voti</label>
+              <input class="form-input" id="voteChannel" placeholder="ID canale Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Canale Log Unban</label>
+              <input class="form-input" id="unbanChannel" placeholder="ID canale Discord" />
+            </div>
+            <button class="btn btn-red" onclick="saveSettings()">💾 Salva Impostazioni</button>
+          </div>
+        </div>
+
+        <div class="admin-table-wrap" style="margin-top:0;">
+          <div class="admin-table-header"><div class="admin-table-header-title">🎭 ID Ruoli Staff</div></div>
+          <div style="padding:1.2rem;">
+            <div class="form-group">
+              <label class="form-label">Founder Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Co Founder Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Manager Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Admin Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supervisor Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Coordinator Role ID</label>
+              <input class="form-input" placeholder="ID ruolo Discord" />
+            </div>
+            <button class="btn btn-red" onclick="saveSettings()">💾 Salva ID Ruoli</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning" style="max-width:800px;margin-top:16px;">
+        <span>⚠️</span>
+        <div>Per il controllo ruoli in produzione, il bot Python deve esporre un endpoint API che restituisce i ruoli dell'utente dato il suo Discord ID. Configura il Guild ID sopra per attivare la verifica automatica.</div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /adminLayout -->
+
+<!-- ══════════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════════ -->
+
+<!-- Unban Detail Modal -->
+<div class="modal-overlay" id="unbanModal">
+  <div class="modal-box">
+    <div class="modal-title" id="unbanModalTitle">Richiesta Unban</div>
+    <div class="modal-sub" id="unbanModalDate">—</div>
+    <div class="modal-user-preview">
+      <img id="umAvatar" src="" style="width:40px;height:40px;border-radius:50%;">
+      <div>
+        <div style="font-weight:600;" id="umName">—</div>
+        <div style="font-size:0.78rem;color:var(--muted);" id="umId">—</div>
+      </div>
+      <span class="pill pill-pending" id="umStatus" style="margin-left:auto;">In attesa</span>
+    </div>
+    <div id="umDetails"></div>
+    <div style="margin-top:1rem;">
+      <label class="form-label">Note staff (opzionale)</label>
+      <textarea class="form-textarea" id="unbanNote" placeholder="Aggiungi una nota per la decisione..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="modal-btns" id="unbanModalBtns">
+      <button class="btn btn-success" onclick="decideUnban('accepted')">✅ Accetta</button>
+      <button class="btn btn-danger" onclick="decideUnban('rejected')">❌ Rifiuta</button>
+      <button class="btn btn-ghost" onclick="closeModal('unbanModal')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Candidatura Detail Modal -->
+<div class="modal-overlay" id="candModal">
+  <div class="modal-box" style="max-width:580px;">
+    <div class="modal-title" id="candModalTitle">Candidatura Staff</div>
+    <div class="modal-sub" id="candModalDate">—</div>
+    <div class="modal-user-preview">
+      <img id="cmAvatar" src="" style="width:40px;height:40px;border-radius:50%;">
+      <div>
+        <div style="font-weight:600;" id="cmName">—</div>
+        <div style="font-size:0.78rem;color:var(--muted);" id="cmId">—</div>
+      </div>
+      <span class="pill pill-pending" id="cmStatus" style="margin-left:auto;">In attesa</span>
+    </div>
+    <div id="cmDetails" style="max-height:300px;overflow-y:auto;"></div>
+    <div style="margin-top:1rem;">
+      <label class="form-label">Nota staff (opzionale)</label>
+      <textarea class="form-textarea" id="candNote" placeholder="Motivazione della decisione..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="modal-btns" id="candModalBtns">
+      <button class="btn btn-success" onclick="decideCand('accepted')">✅ Accetta — Aggiungi allo Staff</button>
+      <button class="btn btn-danger" onclick="decideCand('rejected')">❌ Rifiuta</button>
+      <button class="btn btn-ghost" onclick="closeModal('candModal')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Role Modal -->
+<div class="modal-overlay" id="addRoleModal">
+  <div class="modal-box">
+    <div class="modal-title">Aggiungi Ruolo Custom</div>
+    <div class="modal-sub">Aggiungi un nuovo ruolo custom al server.</div>
+    <div class="form-group">
+      <label class="form-label">Nome Ruolo <span>*</span></label>
+      <input class="form-input" id="newRoleName" placeholder="Es: 🎮 Gamer" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Colore (hex)</label>
+      <input class="form-input" id="newRoleColor" placeholder="#e63030" type="color" value="#e63030" style="height:40px;padding:4px;" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">ID Proprietario Discord <span>*</span></label>
+      <input class="form-input" id="newRoleOwner" placeholder="Discord User ID del proprietario" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrizione</label>
+      <input class="form-input" id="newRoleDesc" placeholder="Breve descrizione del ruolo" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-red" onclick="addRole()">+ Aggiungi Ruolo</button>
+      <button class="btn btn-ghost" onclick="closeModal('addRoleModal')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- XP Edit Modal -->
+<div class="modal-overlay" id="xpModal">
+  <div class="modal-box">
+    <div class="modal-title">Modifica XP Manuale</div>
+    <div class="modal-sub">Modifica l'XP di un membro specifico.</div>
+    <div class="form-group">
+      <label class="form-label">Discord User ID <span>*</span></label>
+      <input class="form-input" id="xpUserId" placeholder="ID Discord del membro" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nuovo valore XP <span>*</span></label>
+      <input class="form-input" id="xpValue" type="number" min="0" placeholder="Es: 1500" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Motivo</label>
+      <input class="form-input" id="xpReason" placeholder="Motivazione modifica manuale" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-red" onclick="saveXp()">💾 Salva XP</button>
+      <button class="btn btn-ghost" onclick="closeModal('xpModal')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════
+// CONFIG
+// ════════════════════════════════
+const DISCORD_CLIENT_ID = '1488790147796570263';
+const REDIRECT_URI = window.location.origin + window.location.pathname;
+const DISCORD_SCOPES = 'identify email guilds';
+
+// Ruoli staff autorizzati (nomi — in produzione usa gli ID)
+const STAFF_ROLES = ['Founder', 'Co Founder', 'Manager', 'Admin', 'Supervisor', 'Coordinator'];
+const ROLE_HIERARCHY = { 'Founder': 6, 'Co Founder': 5, 'Manager': 4, 'Admin': 3, 'Supervisor': 2, 'Coordinator': 1 };
+
+// Il tuo Guild (Server) ID
+const GUILD_ID = ''; // Inserisci qui l'ID del tuo server Discord
+
+// ════════════════════════════════
+// STATE
+// ════════════════════════════════
+let currentUser = null;
+let currentUserRole = null;
+let currentUnbanId = null;
+let currentCandId = null;
+let currentFilter = { unban: 'pending', cand: 'pending' };
+
+// DATA STORE (in produzione: backend DB)
+let dataStore = {
+  unban: JSON.parse(localStorage.getItem('admin_unban') || '[]'),
+  candidature: JSON.parse(localStorage.getItem('admin_cand') || '[]'),
+  ruoli: JSON.parse(localStorage.getItem('admin_ruoli') || '[]'),
+  staff: JSON.parse(localStorage.getItem('admin_staff') || '[]'),
+  logs: JSON.parse(localStorage.getItem('admin_logs') || '[]'),
+};
+
+function saveData() {
+  try {
+    localStorage.setItem('admin_unban', JSON.stringify(dataStore.unban));
+    localStorage.setItem('admin_cand', JSON.stringify(dataStore.candidature));
+    localStorage.setItem('admin_ruoli', JSON.stringify(dataStore.ruoli));
+    localStorage.setItem('admin_staff', JSON.stringify(dataStore.staff));
+    localStorage.setItem('admin_logs', JSON.stringify(dataStore.logs.slice(0, 200)));
+  } catch(e) {}
+}
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const hash = new URLSearchParams(window.location.hash.replace('#', '?'));
+  const token = hash.get('access_token') || sessionStorage.getItem('admin_discord_token');
+
+  if (token) {
+    sessionStorage.setItem('admin_discord_token', token);
+    window.history.replaceState({}, '', window.location.pathname);
+    await verifyAccess(token);
+  }
+
+  updateBadges();
+  renderDashboard();
+});
+
+// ════════════════════════════════
+// DISCORD AUTH
+// ════════════════════════════════
+function initiateDiscordLogin() {
+  const url = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=${encodeURIComponent(DISCORD_SCOPES)}`;
+  window.location.href = url;
+}
+
+async function verifyAccess(token) {
+  setGateState('loading');
+
+  try {
+    // 1. Fetch user info
+    const userRes = await fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!userRes.ok) throw new Error('Invalid token');
+    const user = await userRes.json();
+
+    // 2. Fetch guilds to check if user is in the server
+    const guildsRes = await fetch('https://discord.com/api/users/@me/guilds', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const guilds = await guildsRes.json();
+
+    // 3. Fetch guild member info (requires bot token for role check)
+    // In production: call your Python bot's API endpoint to get member roles
+    // For demo: we simulate role detection
+    const detectedRole = await checkUserRole(token, user.id);
+
+    if (!detectedRole) {
+      setGateState('denied');
+      sessionStorage.removeItem('admin_discord_token');
+      return;
+    }
+
+    // ✅ Access granted
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.discriminator || '0') % 5}.png`;
+
+    currentUser = { id: user.id, name: user.username, avatar: avatarUrl, email: user.email };
+    currentUserRole = detectedRole;
+
+    grantAccess();
+    addLog(`🔐 ${currentUser.name} (${currentUserRole}) ha effettuato l'accesso al pannello admin`);
+
+  } catch (err) {
+    console.error(err);
+    setGateState('denied');
+    sessionStorage.removeItem('admin_discord_token');
+    showToast('❌ Errore durante la verifica. Riprova.', 'error');
+  }
+}
+
+async function checkUserRole(token, userId) {
+  const res = await fetch(`https://control.katabump.com/server/e7f55f87/api/member-roles?user_id=${userId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  for (const role of STAFF_ROLES) {
+    if (data.roles.includes(role)) return role;
+  }
+  return null;
+}
+
+function setGateState(state) {
+  document.getElementById('gateLoading').style.display = state === 'loading' ? 'block' : 'none';
+  document.getElementById('gateBtns').style.display = state === 'denied' || state === 'idle' ? 'block' : 'none';
+  document.getElementById('gateAccessDenied').style.display = state === 'denied' ? 'block' : 'none';
+  document.getElementById('gateRolesList').style.display = state === 'loading' ? 'none' : 'block';
+
+  if (state === 'denied') {
+    document.getElementById('gateIcon').textContent = '🚫';
+    document.getElementById('gateTitle').textContent = 'Accesso Negato';
+    document.getElementById('gateSub').textContent = 'Non hai i permessi necessari per accedere.';
+  }
+}
+
+function grantAccess() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('adminLayout').style.display = 'flex';
+
+  // Populate sidebar user
+  const av = document.getElementById('sbAvatar');
+  if (currentUser.avatar) {
+    av.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+  }
+  document.getElementById('sbName').textContent = currentUser.name;
+  document.getElementById('sbRole').textContent = currentUserRole;
+
+  // Update topbar
+  updateTopbar('dashboard', 'Benvenuto nel pannello admin — ' + currentUser.name);
+
+  updateBadges();
+  renderDashboard();
+}
+
+function logout() {
+  sessionStorage.removeItem('admin_discord_token');
+  currentUser = null;
+  currentUserRole = null;
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('adminLayout').style.display = 'none';
+  setGateState('idle');
+  document.getElementById('gateIcon').textContent = '🛡️';
+  document.getElementById('gateTitle').textContent = 'Pannello Admin';
+  document.getElementById('gateSub').textContent = 'Accedi con Discord per continuare.\nSolo lo staff autorizzato ha accesso.';
+}
+
+// ════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════
+const pageTitles = {
+  dashboard: ['Dashboard', 'Panoramica generale'],
+  unban: ['Richieste Unban', 'Gestisci le richieste di unban'],
+  candidature: ['Candidature Staff', 'Esamina le candidature al team'],
+  ruoli: ['Ruoli Custom', 'Gestisci i ruoli custom del server'],
+  members: ['Membri', 'Tutti i membri del server'],
+  staff: ['Gestione Staff', 'Staff autorizzato del server'],
+  livelli: ['Livelli XP', 'Classifica e gestione XP'],
+  logs: ['Log Attività', 'Registro completo delle azioni staff'],
+  impostazioni: ['Impostazioni', 'Configura il pannello e le integrazioni'],
+};
+
+function showPage(id) {
+  document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+
+  // Highlight sidebar link
+  document.querySelectorAll('.sidebar-link').forEach(l => {
+    if (l.getAttribute('onclick') && l.getAttribute('onclick').includes(`'${id}'`)) {
+      l.classList.add('active');
+    }
+  });
+
+  const titles = pageTitles[id] || [id, ''];
+  updateTopbar(titles[0], titles[1]);
+
+  // Render specific pages
+  if (id === 'unban') renderUnban();
+  if (id === 'candidature') renderCand();
+  if (id === 'ruoli') renderRuoli();
+  if (id === 'staff') renderStaff();
+  if (id === 'logs') renderLogs();
+}
+
+function updateTopbar(title, sub) {
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarSub').textContent = sub;
+}
+
+// ════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════
+function renderDashboard() {
+  const pending = dataStore.unban.filter(u => u.status === 'pending');
+  const pendingCand = dataStore.candidature.filter(c => c.status === 'pending');
+
+  document.getElementById('ds-unban').textContent = pending.length;
+  document.getElementById('ds-cand').textContent = pendingCand.length;
+  document.getElementById('ds-staff').textContent = dataStore.staff.length;
+  document.getElementById('ds-members').textContent = '—';
+
+  // Dash unban list
+  const dashUnban = document.getElementById('dashUnbanList');
+  if (pending.length === 0) {
+    dashUnban.innerHTML = '<div class="empty-state" style="padding:1.5rem;"><div class="ei">🎉</div><h3>Tutto pulito!</h3><p>Nessuna richiesta unban in attesa</p></div>';
+  } else {
+    dashUnban.innerHTML = pending.slice(0, 3).map(u => `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border2);">
+        <img src="${u.avatar}" style="width:30px;height:30px;border-radius:50%;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:0.86rem;">${u.username}</div>
+          <div style="font-size:0.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.reason}</div>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="openUnban('${u.id}')">Apri</button>
+      </div>
+    `).join('');
+  }
+
+  // Dash cand list
+  const dashCand = document.getElementById('dashCandList');
+  if (pendingCand.length === 0) {
+    dashCand.innerHTML = '<div class="empty-state" style="padding:1.5rem;"><div class="ei">📭</div><h3>Nessuna candidatura</h3><p>Non ci sono candidature in attesa</p></div>';
+  } else {
+    dashCand.innerHTML = pendingCand.slice(0, 3).map(c => `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border2);">
+        <img src="${c.avatar}" style="width:30px;height:30px;border-radius:50%;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:500;font-size:0.86rem;">${c.username}</div>
+          <div style="font-size:0.75rem;color:var(--muted);">${c.age} anni · ${c.hours}</div>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="openCand('${c.id}')">Apri</button>
+      </div>
+    `).join('');
+  }
+
+  // Log preview
+  renderLogPreview();
+}
+
+// ════════════════════════════════
+// UNBAN
+// ════════════════════════════════
+function renderUnban(filter, search) {
+  filter = filter || currentFilter.unban;
+  let data = [...dataStore.unban];
+  if (filter !== 'all') data = data.filter(u => u.status === filter);
+  if (search) data = data.filter(u => u.username.toLowerCase().includes(search.toLowerCase()));
+
+  const body = document.getElementById('unbanTableBody');
+
+  if (data.length === 0) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ei">🔨</div><h3>Nessuna richiesta</h3><p>Nessun risultato per questo filtro</p></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = data.map(u => `
+    <tr>
+      <td>
+        <div class="avatar-user">
+          <img src="${u.avatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <div>
+            <div class="username">${u.username}</div>
+            <div class="userid">${u.userId}</div>
+          </div>
+        </div>
+      </td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);">${u.reason}</td>
+      <td style="color:var(--muted);font-size:0.82rem;">${u.date}</td>
+      <td><span class="pill pill-${u.status}">${statusLabel(u.status)}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-outline" onclick="openUnban('${u.id}')">👁 Esamina</button>
+          ${u.status === 'pending' ? `
+            <button class="btn btn-sm btn-success" onclick="quickDecideUnban('${u.id}','accepted')">✅</button>
+            <button class="btn btn-sm btn-danger" onclick="quickDecideUnban('${u.id}','rejected')">❌</button>
+          ` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterUnban(f) {
+  currentFilter.unban = f;
+  document.querySelectorAll('#unbanTabs .tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['pending','accepted','rejected','all'][i] === f);
+  });
+  renderUnban(f);
+}
+
+function searchUnban(val) { renderUnban(currentFilter.unban, val); }
+
+function openUnban(id) {
+  const u = dataStore.unban.find(x => x.id === id);
+  if (!u) return;
+  currentUnbanId = id;
+
+  document.getElementById('unbanModalTitle').textContent = 'Richiesta Unban — ' + u.username;
+  document.getElementById('unbanModalDate').textContent = 'Inviata il ' + u.date;
+  document.getElementById('umAvatar').src = u.avatar;
+  document.getElementById('umName').textContent = u.username;
+  document.getElementById('umId').textContent = 'Discord ID: ' + u.userId;
+  document.getElementById('umStatus').className = `pill pill-${u.status}`;
+  document.getElementById('umStatus').textContent = statusLabel(u.status);
+
+  document.getElementById('umDetails').innerHTML = `
+    <div class="detail-row"><div class="detail-label">Motivo del ban</div><div class="detail-val">${u.reason}</div></div>
+    <div class="detail-row"><div class="detail-label">Perché dovrebbe essere unbannato</div><div class="detail-val" style="text-align:right;">${u.why}</div></div>
+    ${u.banDate ? `<div class="detail-row"><div class="detail-label">Data ban appross.</div><div class="detail-val">${u.banDate}</div></div>` : ''}
+    ${u.prev ? `<div class="detail-row"><div class="detail-label">Richieste precedenti</div><div class="detail-val">${u.prev === 'yes' ? 'Sì' : 'No'}</div></div>` : ''}
+    ${u.staffNote ? `<div class="detail-row"><div class="detail-label">Nota staff</div><div class="detail-val" style="color:var(--muted);">${u.staffNote}</div></div>` : ''}
+  `;
+
+  document.getElementById('unbanNote').value = u.staffNote || '';
+  document.getElementById('unbanModalBtns').innerHTML = u.status === 'pending' ? `
+    <button class="btn btn-success" onclick="decideUnban('accepted')">✅ Accetta Unban</button>
+    <button class="btn btn-danger" onclick="decideUnban('rejected')">❌ Rifiuta</button>
+    <button class="btn btn-ghost" onclick="closeModal('unbanModal')">Annulla</button>
+  ` : `<button class="btn btn-ghost" onclick="closeModal('unbanModal')">Chiudi</button>`;
+
+  openModal('unbanModal');
+}
+
+function decideUnban(decision) {
+  const u = dataStore.unban.find(x => x.id === currentUnbanId);
+  if (!u) return;
+  u.status = decision;
+  u.staffNote = document.getElementById('unbanNote').value;
+  u.decidedBy = currentUser.name;
+  u.decidedAt = new Date().toLocaleString('it-IT');
+  saveData();
+  addLog(`${decision === 'accepted' ? '✅' : '❌'} ${currentUser.name} ha ${decision === 'accepted' ? 'accettato' : 'rifiutato'} l'unban di ${u.username}`);
+  closeModal('unbanModal');
+  renderUnban();
+  updateBadges();
+  renderDashboard();
+  showToast(`${decision === 'accepted' ? '✅ Unban accettato' : '❌ Unban rifiutato'} per ${u.username}`, decision === 'accepted' ? 'success' : 'error');
+}
+
+function quickDecideUnban(id, decision) {
+  currentUnbanId = id;
+  document.getElementById('unbanNote').value = '';
+  decideUnban(decision);
+}
+
+// ════════════════════════════════
+// CANDIDATURE
+// ════════════════════════════════
+function renderCand(filter, search) {
+  filter = filter || currentFilter.cand;
+  let data = [...dataStore.candidature];
+  if (filter !== 'all') data = data.filter(c => c.status === filter);
+  if (search) data = data.filter(c => c.username.toLowerCase().includes(search.toLowerCase()));
+
+  const body = document.getElementById('candTableBody');
+
+  if (data.length === 0) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="ei">📋</div><h3>Nessuna candidatura</h3><p>Nessun risultato per questo filtro</p></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = data.map(c => `
+    <tr>
+      <td>
+        <div class="avatar-user">
+          <img src="${c.avatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <div>
+            <div class="username">${c.username}</div>
+            <div class="userid">${c.userId}</div>
+          </div>
+        </div>
+      </td>
+      <td>${c.age} anni</td>
+      <td style="color:var(--muted);font-size:0.84rem;">${c.hours}</td>
+      <td style="color:var(--muted);font-size:0.82rem;">${c.date}</td>
+      <td><span class="pill pill-${c.status}">${statusLabel(c.status)}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-outline" onclick="openCand('${c.id}')">👁 Leggi</button>
+          ${c.status === 'pending' ? `
+            <button class="btn btn-sm btn-success" onclick="quickDecideCand('${c.id}','accepted')">✅</button>
+            <button class="btn btn-sm btn-danger" onclick="quickDecideCand('${c.id}','rejected')">❌</button>
+          ` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterCand(f) {
+  currentFilter.cand = f;
+  renderCand(f);
+}
+
+function searchCand(val) { renderCand(currentFilter.cand, val); }
+
+function openCand(id) {
+  const c = dataStore.candidature.find(x => x.id === id);
+  if (!c) return;
+  currentCandId = id;
+
+  document.getElementById('candModalTitle').textContent = 'Candidatura — ' + c.username;
+  document.getElementById('candModalDate').textContent = 'Inviata il ' + c.date;
+  document.getElementById('cmAvatar').src = c.avatar;
+  document.getElementById('cmName').textContent = c.username;
+  document.getElementById('cmId').textContent = 'Discord ID: ' + c.userId;
+  document.getElementById('cmStatus').className = `pill pill-${c.status}`;
+  document.getElementById('cmStatus').textContent = statusLabel(c.status);
+
+  document.getElementById('cmDetails').innerHTML = `
+    <div class="detail-row"><div class="detail-label">Età</div><div class="detail-val">${c.age} anni</div></div>
+    <div class="detail-row"><div class="detail-label">Fuso orario</div><div class="detail-val">${c.tz || '—'}</div></div>
+    <div class="detail-row"><div class="detail-label">Disponibilità</div><div class="detail-val">${c.hours}</div></div>
+    <div class="detail-row"><div class="detail-label">Esperienza</div><div class="detail-val" style="text-align:right;max-width:280px;">${c.exp}</div></div>
+    <div class="detail-row"><div class="detail-label">Motivazione</div><div class="detail-val" style="text-align:right;max-width:280px;">${c.why}</div></div>
+    ${c.scenario ? `<div class="detail-row"><div class="detail-label">Gestione conflitti</div><div class="detail-val" style="text-align:right;max-width:280px;">${c.scenario}</div></div>` : ''}
+    ${c.extra ? `<div class="detail-row"><div class="detail-label">Note aggiuntive</div><div class="detail-val" style="text-align:right;">${c.extra}</div></div>` : ''}
+    ${c.staffNote ? `<div class="detail-row"><div class="detail-label">Nota staff</div><div class="detail-val" style="color:var(--muted);">${c.staffNote}</div></div>` : ''}
+  `;
+
+  document.getElementById('candNote').value = c.staffNote || '';
+  document.getElementById('candModalBtns').innerHTML = c.status === 'pending' ? `
+    <button class="btn btn-success" onclick="decideCand('accepted')">✅ Accetta — Aggiungi allo Staff</button>
+    <button class="btn btn-danger" onclick="decideCand('rejected')">❌ Rifiuta</button>
+    <button class="btn btn-ghost" onclick="closeModal('candModal')">Annulla</button>
+  ` : `<button class="btn btn-ghost" onclick="closeModal('candModal')">Chiudi</button>`;
+
+  openModal('candModal');
+}
+
+function decideCand(decision) {
+  const c = dataStore.candidature.find(x => x.id === currentCandId);
+  if (!c) return;
+  c.status = decision;
+  c.staffNote = document.getElementById('candNote').value;
+  c.decidedBy = currentUser.name;
+  c.decidedAt = new Date().toLocaleString('it-IT');
+
+  if (decision === 'accepted') {
+    // Add to staff
+    const exists = dataStore.staff.find(s => s.userId === c.userId);
+    if (!exists) {
+      dataStore.staff.push({
+        id: c.id,
+        userId: c.userId,
+        username: c.username,
+        avatar: c.avatar,
+        role: 'Coordinator', // default, can be changed
+        addedAt: new Date().toLocaleString('it-IT'),
+        addedBy: currentUser.name,
+      });
+    }
+    addLog(`✅ ${currentUser.name} ha accettato la candidatura di ${c.username} — aggiunto allo staff`);
+    showToast(`✅ ${c.username} aggiunto allo staff come Coordinator!`, 'success');
+  } else {
+    addLog(`❌ ${currentUser.name} ha rifiutato la candidatura di ${c.username}`);
+    showToast(`❌ Candidatura di ${c.username} rifiutata`, 'error');
+  }
+
+  saveData();
+  closeModal('candModal');
+  renderCand();
+  updateBadges();
+  renderDashboard();
+}
+
+function quickDecideCand(id, decision) {
+  currentCandId = id;
+  document.getElementById('candNote').value = '';
+  decideCand(decision);
+}
+
+// ════════════════════════════════
+// RUOLI
+// ════════════════════════════════
+function renderRuoli() {
+  const body = document.getElementById('ruoliTableBody');
+  if (dataStore.ruoli.length === 0) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ei">🎭</div><h3>Nessun ruolo custom</h3><p>Aggiungi il primo ruolo dal bottone in alto</p></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = dataStore.ruoli.map(r => `
+    <tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:${r.color};flex-shrink:0;"></div>
+          <div>
+            <div style="font-weight:500;">${r.name}</div>
+            <div style="font-size:0.76rem;color:var(--muted);">${r.desc || '—'}</div>
+          </div>
+        </div>
+      </td>
+      <td style="color:var(--muted);font-size:0.84rem;">${r.ownerName || r.ownerId}</td>
+      <td><span style="font-weight:700;color:var(--info);">${r.members || 0}</span></td>
+      <td><span class="pill ${r.pendingReqs > 0 ? 'pill-pending' : 'pill-active'}">${r.pendingReqs || 0} richieste</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-danger" onclick="removeRole('${r.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addRole() {
+  const name = document.getElementById('newRoleName').value.trim();
+  const color = document.getElementById('newRoleColor').value;
+  const ownerId = document.getElementById('newRoleOwner').value.trim();
+  const desc = document.getElementById('newRoleDesc').value.trim();
+
+  if (!name || !ownerId) { showToast('❌ Compila nome e ID proprietario', 'error'); return; }
+
+  const role = { id: Date.now().toString(), name, color, ownerId, ownerName: ownerId, desc, members: 0, pendingReqs: 0, createdAt: new Date().toLocaleString('it-IT') };
+  dataStore.ruoli.push(role);
+  saveData();
+  addLog(`🎭 ${currentUser.name} ha aggiunto il ruolo custom "${name}"`);
+  closeModal('addRoleModal');
+  renderRuoli();
+  showToast(`✅ Ruolo "${name}" aggiunto!`, 'success');
+
+  document.getElementById('newRoleName').value = '';
+  document.getElementById('newRoleOwner').value = '';
+  document.getElementById('newRoleDesc').value = '';
+}
+
+function removeRole(id) {
+  if (!confirm('Sei sicuro di voler rimuovere questo ruolo?')) return;
+  const r = dataStore.ruoli.find(x => x.id === id);
+  dataStore.ruoli = dataStore.ruoli.filter(x => x.id !== id);
+  saveData();
+  addLog(`🗑️ ${currentUser.name} ha rimosso il ruolo custom "${r.name}"`);
+  renderRuoli();
+  showToast('🗑️ Ruolo rimosso', 'warn');
+}
+
+// ════════════════════════════════
+// STAFF
+// ════════════════════════════════
+function renderStaff() {
+  document.getElementById('staffTableCount').textContent = dataStore.staff.length;
+  const body = document.getElementById('staffTableBody');
+  if (dataStore.staff.length === 0) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ei">🛡️</div><h3>Nessuno staff</h3><p>Lo staff appare qui dopo aver accettato candidature</p></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = dataStore.staff.map(s => `
+    <tr>
+      <td>
+        <div class="avatar-user">
+          <img src="${s.avatar}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <div>
+            <div class="username">${s.username}</div>
+            <div class="userid">Aggiunto: ${s.addedAt}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="role-tag role-${s.role.toLowerCase().replace(' ','')}">${s.role}</span></td>
+      <td><span class="pill pill-active">✅ Sì</span></td>
+      <td style="color:var(--muted);">${dataStore.unban.filter(u => u.decidedBy === s.username).length}</td>
+      <td style="color:var(--muted);">${dataStore.candidature.filter(c => c.decidedBy === s.username).length}</td>
+    </tr>
+  `).join('');
+}
+
+// ════════════════════════════════
+// LOGS
+// ════════════════════════════════
+function addLog(msg) {
+  dataStore.logs.unshift({ msg, time: new Date().toLocaleString('it-IT'), by: currentUser?.name || 'Sistema' });
+  saveData();
+  renderLogPreview();
+}
+
+function renderLogPreview() {
+  const el = document.getElementById('dashLogList');
+  if (!el) return;
+  if (dataStore.logs.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">🕐</div><h3>Nessuna attività</h3></div>';
+    return;
+  }
+  el.innerHTML = '<div class="log-list">' + dataStore.logs.slice(0, 5).map(l => `
+    <div class="log-item">
+      <div>${l.msg}</div>
+      <div class="log-time">${l.time}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function renderLogs() {
+  const el = document.getElementById('fullLogList');
+  if (dataStore.logs.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="ei">📜</div><h3>Nessuna attività</h3></div>';
+    return;
+  }
+  el.innerHTML = '<div class="log-list">' + dataStore.logs.map(l => `
+    <div class="log-item">
+      <div>${l.msg}</div>
+      <div class="log-time">${l.time}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function clearLogs() {
+  if (!confirm('Svuotare il log attività?')) return;
+  dataStore.logs = [];
+  saveData();
+  renderLogs();
+  showToast('🗑️ Log svuotato', 'warn');
+}
+
+// ════════════════════════════════
+// BADGES
+// ════════════════════════════════
+function updateBadges() {
+  const unbanPending = dataStore.unban.filter(u => u.status === 'pending').length;
+  const candPending = dataStore.candidature.filter(c => c.status === 'pending').length;
+  const roliCount = dataStore.ruoli.length;
+
+  document.getElementById('badge-unban').textContent = unbanPending;
+  document.getElementById('badge-cand').textContent = candPending;
+  document.getElementById('badge-ruoli').textContent = roliCount;
+
+  document.getElementById('tab-pending-count').textContent = unbanPending > 0 ? `(${unbanPending})` : '';
+}
+
+// ════════════════════════════════
+// SETTINGS
+// ════════════════════════════════
+function saveSettings() {
+  showToast('💾 Impostazioni salvate! (In produzione: collegare al backend)', 'success');
+  addLog(`⚙️ ${currentUser.name} ha aggiornato le impostazioni`);
+}
+
+function saveXp() {
+  const userId = document.getElementById('xpUserId').value.trim();
+  const val = document.getElementById('xpValue').value;
+  if (!userId || !val) { showToast('❌ Compila tutti i campi', 'error'); return; }
+  addLog(`📈 ${currentUser.name} ha modificato XP per l'utente ${userId}: ${val} XP`);
+  closeModal('xpModal');
+  showToast(`✅ XP aggiornato per ${userId}`, 'success');
+}
+
+// ════════════════════════════════
+// REFRESH
+// ════════════════════════════════
+function refreshData() {
+  showToast('🔄 Dati aggiornati', 'success');
+  renderDashboard();
+  updateBadges();
+}
+
+// ════════════════════════════════
+// HELPERS
+// ════════════════════════════════
+function statusLabel(s) {
+  return { pending: '⏳ In attesa', accepted: '✅ Accettata', rejected: '❌ Rifiutata', ban: '🔨 Bannato', active: '✅ Attivo' }[s] || s;
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type === 'success' ? '✅' : type === 'warn' ? '⚠️' : '❌'}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 4000);
+}
+
+// ════════════════════════════════
+// PUBLIC API — Called from index.html
+// These functions allow the main site to push data here
+// ════════════════════════════════
+// Example of how to receive data from the bot / main site:
+// dataStore.unban.push({ id, username, userId, avatar, reason, why, banDate, prev, date, status:'pending' })
+// dataStore.candidature.push({ id, username, userId, avatar, age, tz, hours, exp, why, scenario, extra, date, status:'pending' })
+
+// ════════════════════════════════
+// DEMO: Pre-populate with sample data for testing
+// REMOVE IN PRODUCTION
+// ════════════════════════════════
+function loadDemoData() {
+  if (dataStore.unban.length === 0 && dataStore.candidature.length === 0) {
+    dataStore.unban = [
+      { id: 'u1', username: 'DemoUser#1234', userId: '123456789', avatar: 'https://cdn.discordapp.com/embed/avatars/0.png', reason: 'Spam nei canali', why: 'Era un periodo difficile, prometto che non lo farò più', banDate: '2025-01-10', prev: 'no', date: new Date().toLocaleDateString('it-IT'), status: 'pending' },
+      { id: 'u2', username: 'TestMember#5678', userId: '987654321', avatar: 'https://cdn.discordapp.com/embed/avatars/1.png', reason: 'Insulti ad un membro', why: 'Ho sbagliato, chiedo scusa sinceramente', banDate: '2025-01-05', prev: 'no', date: new Date().toLocaleDateString('it-IT'), status: 'pending' },
+    ];
+    dataStore.candidature = [
+      { id: 'c1', username: 'Aspirante#0001', userId: '111111111', avatar: 'https://cdn.discordapp.com/embed/avatars/2.png', age: 19, tz: 'UTC+1', hours: '2-4 ore', exp: 'Ho moderato 3 server negli ultimi 2 anni', why: 'Voglio contribuire a rendere questo server migliore', scenario: 'Separerei i due, ascolterei entrambe le parti e poi prenderei una decisione imparziale', extra: '', date: new Date().toLocaleDateString('it-IT'), status: 'pending' },
+    ];
+    saveData();
+    updateBadges();
+    renderDashboard();
+  }
+}
+
+// Load demo data on first visit
+loadDemoData();
+</script>
+</body>
+</html>

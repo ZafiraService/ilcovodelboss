@@ -51,10 +51,18 @@ async def load_modules(bot, folder):
 async def on_ready():
     success(f"Bot online come {bot.user}")
     guild = discord.Object(id=GUILD_ID)
-    for cmd in bot.tree.walk_commands():
-        cmd.guild_ids = [GUILD_ID]
-    synced = await bot.tree.sync(guild=guild)
-    success(f"Slash commands sincronizzati ({len(synced)} comandi)")
+
+    # Sincronizza i comandi slash nella guild specifica
+    # NOTA: Assicurati che nei file commands/*.py i comandi abbiano guild_ids=[GUILD_ID]
+    # Esempio: @tree.command(name="test", guild_ids=[GUILD_ID])
+    try:
+        synced = await bot.tree.sync(guild=guild)
+        success(f"Slash commands sincronizzati nella guild ({len(synced)} comandi)")
+    except Exception as e:
+        error(f"Errore sincronizzazione guild-specific: {e}")
+        # Fallback: sincronizza globalmente
+        synced = await bot.tree.sync()
+        success(f"Slash commands sincronizzati globalmente ({len(synced)} comandi)")
 
 
 # ════════════════════════════════════════

@@ -53,8 +53,7 @@ async def on_ready():
     guild = discord.Object(id=GUILD_ID)
 
     # Sincronizza i comandi slash nella guild specifica
-    # NOTA: Assicurati che nei file commands/*.py i comandi abbiano guild_ids=[GUILD_ID]
-    # Esempio: @tree.command(name="test", guild_ids=[GUILD_ID])
+    # I comandi vengono automaticamente limitati alla guild tramite sync(guild=guild)
     try:
         synced = await bot.tree.sync(guild=guild)
         success(f"Slash commands sincronizzati nella guild ({len(synced)} comandi)")

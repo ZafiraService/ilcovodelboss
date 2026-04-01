@@ -50,9 +50,6 @@ async def accedi(interaction: discord.Interaction):
 
 
 # ════════════════════════════════════════
-# SETUP FUNCTION
+# SETUP FUNCTION (rimossa - il comando si registra automaticamente)
 # ════════════════════════════════════════
-
-async def setup(bot):
-    """Aggiunge il comando al bot."""
-    bot.tree.add_command(accedi)
+# In discord.py moderno, i comandi con @app_commands.command si registrano automaticamente
